@@ -20,6 +20,9 @@
 #include <memory>
 #include <vector>
 
+#include <thread>
+// #include "BufferedAsyncSerial.hpp"
+
 // #include <rclcpp/rclcpp.hpp>
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "ros2_control_demo_hardware/diffbot_system.hpp"
@@ -155,7 +158,16 @@ hardware_interface::return_type DiffBotSystemHardware::start()
 
   try
   {
+    //Return immediately. String is written *after* the function returns,
+    //in a separate thread.
+    // using namespace std;
+    // mySerial = new ::BufferedAsyncSerial("/dev/ttyUSB0", 115200);  // create a comport obj
     mySerial = new uart::SimpleSerial("/dev/ttyUSB0", 115200);  // create a comport obj
+
+    //Simulate doing something else while the serial device replies.
+    //When the serial device replies, the second thread stores the received
+    //data in a buffer.
+    // std::this_thread::sleep_for(std::chrono::seconds(2));
   }
   catch (boost::system::system_error & e)
   {
@@ -209,14 +221,14 @@ void ros2_control_demo_hardware::DiffBotSystemHardware::handleReceivedLine(std::
   std::vector<std::string> lineParts;
 
   boost::split(lineParts, line, boost::is_any_of("\t"));
-  RCLCPP_INFO(rclcpp::get_logger("serial"), "PARSE: %s", lineParts[0]);
+  // RCLCPP_INFO(rclcpp::get_logger("serial"), "PARSE: %s", lineParts[0]);
   if (lineParts[0] == "e")
   {
     hw_positions_[0] = std::stod(lineParts[1]);  // left
     hw_positions_[1] = std::stod(lineParts[2]);  // right
-    RCLCPP_INFO(rclcpp::get_logger("serial"), "l: %s r: %s", lineParts[1], lineParts[2]);
+    RCLCPP_INFO(rclcpp::get_logger("serial"), "l: %s r: %s", lineParts[1].c_str(), lineParts[2].c_str());
   }
-    /*
+  /*
             elif (lineParts[0] == 'v'):
                 self._rwheel_vel_value = float(lineParts[1])
                 self._lwheel_vel_value = float(lineParts[2])                                        
@@ -228,6 +240,7 @@ void ros2_control_demo_hardware::DiffBotSystemHardware::handleReceivedLine(std::
 hardware_interface::return_type DiffBotSystemHardware::read()
 {
   RCLCPP_INFO(rclcpp::get_logger("diffbot"), "Reading...");
+  // handleReceivedLine(mySerial->readStringUntil("\n"));
   handleReceivedLine(mySerial->readLine());
 
   double radius = 0.02;  // radius of the wheels
@@ -276,7 +289,7 @@ hardware_interface::return_type ros2_control_demo_hardware::DiffBotSystemHardwar
       rclcpp::get_logger("diffbot"), "Got command %.5f for '%s'!", hw_commands_[i],
       info_.joints[i].name.c_str());
   }
-/*
+  /*
   char values[]={0xde,0xad,0xbe,0xef};
   serial.write(values,sizeof(values));
 */
