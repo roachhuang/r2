@@ -14,6 +14,7 @@
           <plugin>ros2_control_demo_hardware/DiffBotSystemHardware</plugin>
           <param name="example_param_hw_start_duration_sec">2.0</param>
           <param name="example_param_hw_stop_duration_sec">3.0</param>
+          <param name="example_param_hw_slowdown">2.0</param>
         </xacro:unless>
       </hardware>
       <joint name="left_wheel_joint">

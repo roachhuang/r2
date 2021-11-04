@@ -24,7 +24,7 @@ def generate_launch_description():
 
     arg_show_rviz = DeclareLaunchArgument(
         "start_rviz",
-        default_value="false",
+        default_value="true",
         description="start RViz automatically with the launch file",
     )
 
@@ -35,6 +35,7 @@ def generate_launch_description():
             " ",
             PathJoinSubstitution(
                 [FindPackageShare("diffbot_description"), "urdf", "diffbot_system.urdf.xacro"]
+                #[FindPackageShare("diffbot_description"), "urdf", "1st.urdf"]
             ),
         ]
     )
@@ -85,6 +86,7 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
+        output='screen',
         arguments=["-d", rviz_config_file],
         condition=IfCondition(LaunchConfiguration("start_rviz")),
     )

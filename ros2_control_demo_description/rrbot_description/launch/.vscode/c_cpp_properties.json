@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/roach/dev_ws/install/ros2_control_demo_hardware/include/**",
+        "/home/roach/dev_ws/install/my_rotate_bot/include/**",
+        "/home/roach/dev_ws/install/angular_vel/include/**",
+        "/opt/ros/foxy/include/**",
+        "/home/roach/dev_ws/src/cpp_pubsub/include/**",
+        "/home/roach/dev_ws/src/cpp_srvcli/include/**",
+        "/home/roach/dev_ws/src/dynamixel_control/dynamixel_hardware/include/**",
+        "/home/roach/dev_ws/src/my_rotate_bot/include/**",
+        "/home/roach/dev_ws/src/ros2_control_demos/ros2_control_demo_hardware/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}
