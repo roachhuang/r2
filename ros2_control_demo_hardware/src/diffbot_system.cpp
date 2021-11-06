@@ -18,10 +18,9 @@
 #include <iostream>
 #include <limits>
 #include <memory>
-#include <vector>
+// #include <vector>
 
 #include <thread>
-// #include "BufferedAsyncSerial.hpp"
 
 // #include <rclcpp/rclcpp.hpp>
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
@@ -160,14 +159,15 @@ hardware_interface::return_type DiffBotSystemHardware::start()
   {
     //Return immediately. String is written *after* the function returns,
     //in a separate thread.
-    // using namespace std;
-    // mySerial = new ::BufferedAsyncSerial("/dev/ttyUSB0", 115200);  // create a comport obj
-    mySerial = new uart::SimpleSerial("/dev/ttyUSB0", 115200);  // create a comport obj
+
+    mySerial = new ::BufferedAsyncSerial("/dev/ttyUSB0", 115200);  // create a comport obj
+    //BufferedAsyncSerial mySerial("/dev/ttyUSB0", 115200);  
+    // mySerial = new uart::SimpleSerial("/dev/ttyUSB0", 115200);  // create a comport obj
 
     //Simulate doing something else while the serial device replies.
     //When the serial device replies, the second thread stores the received
     //data in a buffer.
-    // std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
   }
   catch (boost::system::system_error & e)
   {
@@ -206,12 +206,13 @@ hardware_interface::return_type DiffBotSystemHardware::stop()
     rclcpp::sleep_for(std::chrono::seconds(1));
     RCLCPP_INFO(rclcpp::get_logger("diffbot"), "%.1f seconds left...", hw_stop_sec_ - i);
   }
-  delete mySerial;
+  // delete mySerial;
   ros2_control_demo_hardware::DiffBotSystemHardware::
 
     status_ = hardware_interface::status::STOPPED;
 
   RCLCPP_INFO(rclcpp::get_logger("diffbot"), "System successfully stopped!");
+  delete mySerial;
   rclcpp::shutdown();
   return hardware_interface::return_type::OK;
 }
@@ -219,13 +220,14 @@ hardware_interface::return_type DiffBotSystemHardware::stop()
 void ros2_control_demo_hardware::DiffBotSystemHardware::handleReceivedLine(std::string line)
 {
   std::vector<std::string> lineParts;
-
+  
   boost::split(lineParts, line, boost::is_any_of("\t"));
   // RCLCPP_INFO(rclcpp::get_logger("serial"), "PARSE: %s", lineParts[0]);
   if (lineParts[0] == "e")
   {
-    hw_positions_[0] = std::stod(lineParts[1]);  // left
-    hw_positions_[1] = std::stod(lineParts[2]);  // right
+    hw_commands_[0] = std::stod(lineParts[1]);  // left
+    hw_commands_[1] = std::stod(lineParts[2]);  // right    
+
     RCLCPP_INFO(rclcpp::get_logger("serial"), "l: %s r: %s", lineParts[1].c_str(), lineParts[2].c_str());
   }
   /*
@@ -239,9 +241,11 @@ void ros2_control_demo_hardware::DiffBotSystemHardware::handleReceivedLine(std::
 
 hardware_interface::return_type DiffBotSystemHardware::read()
 {
+  // double temp;
+
   RCLCPP_INFO(rclcpp::get_logger("diffbot"), "Reading...");
-  // handleReceivedLine(mySerial->readStringUntil("\n"));
-  handleReceivedLine(mySerial->readLine());
+  handleReceivedLine(mySerial->readStringUntil("\n"));
+  // handleReceivedLine(uart::mySerial->readLine());
 
   double radius = 0.02;  // radius of the wheels
   double dist_w = 0.1;   // distance between the wheels
@@ -251,9 +255,12 @@ hardware_interface::return_type DiffBotSystemHardware::read()
 
   for (uint i = 0; i < hw_commands_.size(); i++)
   {
+    // temp = deg2Rad(hw_commands_[i]);
+    // hw_commands_[i] = temp;
     // Simulate DiffBot wheels's movement as a first-order system
     // Update the joint status: this is a revolute joint without any limit.
     // Simply integrates
+
     hw_positions_[i] = hw_positions_[i] + dt * hw_commands_[i];
     hw_velocities_[i] = hw_commands_[i];
 

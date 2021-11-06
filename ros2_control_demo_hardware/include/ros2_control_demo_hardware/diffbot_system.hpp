@@ -14,6 +14,8 @@
 
 #ifndef ROS2_CONTROL_DEMO_HARDWARE__DIFFBOT_SYSTEM_HPP_
 #define ROS2_CONTROL_DEMO_HARDWARE__DIFFBOT_SYSTEM_HPP_
+#define deg2Rad(angleDegrees) ((angleDegrees) * M_PI / 180.0)
+#define rad2Deg(angleRadians) ((angleRadians) * 180.0 / M_PI)
 // #include <memory>
 // #include <string>
 // #include <thread>
@@ -28,7 +30,9 @@
 #include "rclcpp/macros.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "ros2_control_demo_hardware/visibility_control.h"
-#include "ros2_control_demo_hardware/r2serial.hpp"
+// #include "ros2_control_demo_hardware/r2serial.hpp"
+#include "BufferedAsyncSerial.hpp"
+// #include "ros2_control_demo_hardware/BufferedAsyncSerial.cpp"
 
 // using std::placeholders::_1;
 // namespace hw = ros2_control_demo_hardware;
@@ -64,11 +68,14 @@ class DiffBotSystemHardware
 
 public:
   // std::shared_ptr<SP::SerialPort> port() const;
-  /// \breif Callback for when serial data are received
+  /// breif Callback for when serial data are received
   void handleReceivedLine(std::string);  
 
 private:
-  uart::SimpleSerial *mySerial;
+  // std::shared_ptr<::BufferedAsyncSerial> mySerial;
+  ::BufferedAsyncSerial *mySerial{};
+  // uart::SimpleSerial *mySerial;
+
   // std::shared_ptr<::uart::SimpleSerial> mySerial;
   //std::shared_ptr<SP::SerialDriver> serialDrv;
   //std::unique_ptr<SP::SerialPortConfig> m_device_config;

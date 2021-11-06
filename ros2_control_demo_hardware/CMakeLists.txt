@@ -24,6 +24,8 @@ add_library(
   src/rrbot_system_position_only.cpp
   src/rrbot_system_multi_interface.cpp
   src/rrbot_system_with_sensor.cpp
+  src/AsyncSerial.cpp
+  src/BufferedAsyncSerial.cpp
 )
 target_include_directories(
   ${PROJECT_NAME}
@@ -34,7 +36,7 @@ ament_target_dependencies(
   ${PROJECT_NAME}
   hardware_interface
   pluginlib
-  rclcpp   
+  rclcpp
 )
 
 pluginlib_export_plugin_description_file(hardware_interface ros2_control_demo_hardware.xml)

@@ -79,5 +79,6 @@
         "variant": "cpp",
         "bit": "cpp"
     },
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "cmake.sourceDirectory": "${workspaceFolder}/ros2_control_demo_bringup"
 }
