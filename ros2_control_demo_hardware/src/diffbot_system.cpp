@@ -152,6 +152,8 @@ hardware_interface::return_type DiffBotSystemHardware::start()
       hw_positions_[i] = 0;
       hw_velocities_[i] = 0;
       hw_commands_[i] = 0;
+      d_rad[i] = 0;
+      radians_[i] = 0;
     }
   }
 
@@ -220,16 +222,21 @@ hardware_interface::return_type DiffBotSystemHardware::stop()
 void ros2_control_demo_hardware::DiffBotSystemHardware::handleReceivedLine(std::string line)
 {
   std::vector<std::string> lineParts;
-  
+  // static double rad[2]={0};
+  double tmp;
+
   boost::split(lineParts, line, boost::is_any_of("\t"));
   // RCLCPP_INFO(rclcpp::get_logger("serial"), "PARSE: %s", lineParts[0]);
   if (lineParts[0] == "e")
   {
-    hw_commands_[0] = std::stod(lineParts[1]);  // left
-    hw_commands_[1] = std::stod(lineParts[2]);  // right    
+    tmp = std::stod(lineParts[1]);  // left
+    d_rad[0] = angles::from_degrees(tmp);
 
-    RCLCPP_INFO(rclcpp::get_logger("serial"), "l: %s r: %s", lineParts[1].c_str(), lineParts[2].c_str());
-  }
+    tmp = std::stod(lineParts[2]);  // right    
+    d_rad[1] = angles::from_degrees(tmp);
+    // RCLCPP_INFO(rclcpp::get_logger("serial"), "l: %s r: %s", lineParts[1].c_str(), lineParts[2].c_str());   
+  }  
+
   /*
             elif (lineParts[0] == 'v'):
                 self._rwheel_vel_value = float(lineParts[1])
@@ -260,12 +267,15 @@ hardware_interface::return_type DiffBotSystemHardware::read()
     // Simulate DiffBot wheels's movement as a first-order system
     // Update the joint status: this is a revolute joint without any limit.
     // Simply integrates
+    radians_[i] += d_rad[i];
+    hw_velocities_[i] = (radians_[i] -  hw_positions_[i]) / dt;
+    hw_positions_[i] = radians_[i];
 
-    hw_positions_[i] = hw_positions_[i] + dt * hw_commands_[i];
-    hw_velocities_[i] = hw_commands_[i];
+    //hw_positions_[i] = hw_positions_[i] + dt * hw_commands_[i];
+    //hw_velocities_[i] = hw_commands_[i];
 
     RCLCPP_INFO(
-      rclcpp::get_logger("diffbot"), "Got position state %.5f and velocity state %.5f for '%s'!",
+      rclcpp::get_logger("diffbot"), "Got position state %.3f and velocity state %.3f for '%s'!",
       hw_positions_[i], hw_velocities_[i], info_.joints[i].name.c_str());
   }
 
@@ -287,6 +297,8 @@ hardware_interface::return_type DiffBotSystemHardware::read()
 
 hardware_interface::return_type ros2_control_demo_hardware::DiffBotSystemHardware::write()
 {
+  char buf[20];
+
   RCLCPP_INFO(rclcpp::get_logger("diffbot"), "Writing...");
 
   for (auto i = 0u; i < hw_commands_.size(); i++)
@@ -296,6 +308,10 @@ hardware_interface::return_type ros2_control_demo_hardware::DiffBotSystemHardwar
       rclcpp::get_logger("diffbot"), "Got command %.5f for '%s'!", hw_commands_[i],
       info_.joints[i].name.c_str());
   }
+
+  snprintf(buf, 20, "s %.2f %.2f\r", angles::to_degrees(hw_commands_[0]), angles::to_degrees(hw_commands_[1]));
+  mySerial->writeString(buf);
+
   /*
   char values[]={0xde,0xad,0xbe,0xef};
   serial.write(values,sizeof(values));

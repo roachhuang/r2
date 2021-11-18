@@ -32,6 +32,7 @@
 #include "ros2_control_demo_hardware/visibility_control.h"
 // #include "ros2_control_demo_hardware/r2serial.hpp"
 #include "BufferedAsyncSerial.hpp"
+#include <angles/angles.h>
 // #include "ros2_control_demo_hardware/BufferedAsyncSerial.cpp"
 
 // using std::placeholders::_1;
@@ -95,6 +96,8 @@ private:
   double hw_stop_sec_;
 
   // Store the command for the simulated robot
+  double d_rad[2];  
+  double radians_[2];
   std::vector<double> hw_commands_;
   std::vector<double> hw_positions_;
   std::vector<double> hw_velocities_;

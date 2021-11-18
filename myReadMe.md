@@ -7,7 +7,7 @@ ros2 control list_controllers
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --remap cmd_vel:=/diffbot_base_controller/cmd_vel_unstamped
 
 ros2 topic pub --rate 30 /diffbot_base_controller/cmd_vel_unstamped geometry_msgs/msg/Twist "linear:
- x: 0.7
+ x: 2.7
  y: 0.0
  z: 0.0
 angular:
