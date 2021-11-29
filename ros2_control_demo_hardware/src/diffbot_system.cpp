@@ -260,7 +260,7 @@ hardware_interface::return_type DiffBotSystemHardware::read()
   // handleReceivedLine(uart::mySerial->readLine());
 
   double radius = 0.0325;  // radius of the wheels
-  double dist_w = 0.11;   // distance between the wheels
+  double dist_w = 0.11;    // distance between the wheels
   // we should use get params from yaml file
   double dt = 0.01;  // Control period, = "update_rate: 100 # Hz" in yaml file
 
@@ -284,11 +284,11 @@ hardware_interface::return_type DiffBotSystemHardware::read()
 
     //hw_positions_[i] = hw_positions_[i] + dt * hw_commands_[i];
     //hw_velocities_[i] = hw_commands_[i];
-  
+
     RCLCPP_INFO(
       rclcpp::get_logger("diffbot"), "Got position state %.3f and velocity state %.3f for '%s'!",
       hw_positions_[i], hw_velocities_[i], info_.joints[i].name.c_str());
-  
+      
   }
 
 
@@ -319,17 +319,16 @@ hardware_interface::return_type ros2_control_demo_hardware::DiffBotSystemHardwar
   for (auto i = 0u; i < hw_commands_.size(); i++)
   {
     // Simulate sending commands to the hardware
-    
+
     RCLCPP_INFO(
       rclcpp::get_logger("diffbot"), "Got command %.5f for '%s'!", hw_commands_[i],
       info_.joints[i].name.c_str());
-    
   }
   // vl and vr are in rad/s. vr = (2v+wL)/2r; vl=(2v-wL)/2r, we then convert them to deg/s
   // and send them to arduino.
   snprintf(
-    buf, 20, "s %.2f %.2f\r", angles::to_degrees(hw_commands_[0]),
-    angles::to_degrees(hw_commands_[1]));
+    buf, 20, "s:%d,%d\r", (int)angles::to_degrees(hw_commands_[0]),
+    (int)angles::to_degrees(hw_commands_[1]));
   mySerial->writeString(buf);
 
   /*
