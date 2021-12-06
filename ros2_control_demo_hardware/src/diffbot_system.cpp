@@ -259,11 +259,10 @@ hardware_interface::return_type DiffBotSystemHardware::read()
   handleReceivedLine(mySerial->readStringUntil("\n"));
   // handleReceivedLine(uart::mySerial->readLine());
 
-  double radius = 0.0325;  // radius of the wheels
+  double radius = 0.0325;  // radius of the wheels 
   double dist_w = 0.11;    // distance between the wheels
   // we should use get params from yaml file
   double dt = 0.01;  // Control period, = "update_rate: 100 # Hz" in yaml file
-
   // RCLCPP_INFO(rclcpp::get_logger("serial"), "ReadLine: %s", mySerial->readLine());
 
   for (uint i = 0; i < hw_commands_.size(); i++)
@@ -288,7 +287,7 @@ hardware_interface::return_type DiffBotSystemHardware::read()
     RCLCPP_INFO(
       rclcpp::get_logger("diffbot"), "Got position state %.3f and velocity state %.3f for '%s'!",
       hw_positions_[i], hw_velocities_[i], info_.joints[i].name.c_str());
-      
+
   }
 
 
@@ -345,5 +344,9 @@ hardware_interface::return_type ros2_control_demo_hardware::DiffBotSystemHardwar
 }  // namespace ros2_control_demo_hardware
 
 #include "pluginlib/class_list_macros.hpp"
+/* Inside PLUGINLIB_EXPORT_CLASS , we need to provide the class name of the
+plugin (ros2_control_demo_hardware::DiffBotSystemHardware)
+and the base class (hardware_interface::SystemInterface).
+*/
 PLUGINLIB_EXPORT_CLASS(
   ros2_control_demo_hardware::DiffBotSystemHardware, hardware_interface::SystemInterface)
