@@ -95,9 +95,9 @@ def generate_launch_description():
         [
             arg_show_rviz,
             node_robot_state_publisher,
-            controller_manager_node,
-            spawn_dd_controller,
-            spawn_jsb_controller,
+            #controller_manager_node,
+            #spawn_dd_controller,
+            #spawn_jsb_controller,
             rviz_node,
         ]
     )
