@@ -93,11 +93,14 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            # run on pc
             arg_show_rviz,
-            node_robot_state_publisher,
+            node_robot_state_publisher,            
+            spawn_jsb_controller,
+            rviz_node,
+
+            # run on pi 
             #controller_manager_node,
             #spawn_dd_controller,
-            #spawn_jsb_controller,
-            rviz_node,
         ]
     )

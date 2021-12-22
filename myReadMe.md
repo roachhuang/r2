@@ -1,4 +1,4 @@
-
+lsusb
 sudo usermod -a -G dialout $USER
 ros2 launch ros2_control_demo_bringup diffbot_system.launch.py
 
@@ -7,7 +7,24 @@ ros2_control CLI:
     ros2 control list_controllers
     ros2 control list_controller_types
 
+PI:
+    sudo dd if=tb3_rpi4_foxy_20210825.img of=/dev/sdb bs=4M conv=fsyncl
+    gparted
+    sudo -i
+    nautilus (to copy 50-cloud-init.yaml to sd card's /etc/netplan)
+    
+    sudo apt-get ros-foxy-ros-control
+    sudo apt-get ros-foxy-ros-controllers 
+    rosdep install -i --from-path src --rosdistro foxy -y
+    rosdep install --from-paths src --ignore-src -r -y
+    colcon build --symlink-install   
+    colcon build --packages-select <pkg>
+    . install/setup.bash
+    ros2 launch ros2_control_demo_bringup diffbot_system.launch.py
+
 DEBUG:
+    top -i (sorting keys: P, M, N, T)
+    ssh <user>@<ip> sudo -c "shutdown -rf now" 
     why ros2 multicast not woring between pc & pi?
         log into adsl modem (cht/40wqe33f)
         go to advanced settings->LAN->enable IGMP LAN to LAN Multicast->Apply/Save
@@ -33,9 +50,6 @@ DEBUG:
     env | grep ROS_
 
 On your Raspberry Pi, just install the core packages, and run only the core nodes of your applications, which are responsible for talking to the hardware. Then, on your other (remote) computer, start any simulation tool such as RViz, Gazebo. Start your heavy nodes such as motion planning, etc.
-
-rosdep install -i --from-path src --rosdistro foxy -y
-colcon build --packages-select <pkg>
 
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --remap cmd_vel:=/diffbot_base_controller/cmd_vel_unstamped
 
