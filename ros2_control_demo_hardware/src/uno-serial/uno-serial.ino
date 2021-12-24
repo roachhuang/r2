@@ -1,10 +1,15 @@
 #include <Arduino.h>
-#include <Encoder.h>
 #include <PID_v2.h>
 // #include <L298N.h>
 
+// This optional setting causes Encoder to use more optimized code,
+// It must be defined before Encoder.h is included.
+#define ENCODER_OPTIMIZE_INTERRUPTS
+#include <Encoder.h>
+
+// arduino Uno interrupt Pins: 2 and 3, Arduino Mega:  2, 3, 18, 19, 20, 21
 // left
-#define B1A 3                       // Quadrature encoder A pin for right wheel
+#define B1A 3   // Quadrature encoder A pin for right wheel
 #define B1B 4
 #define ENB 11  // black
 #define IN3 12  // yellow
@@ -25,7 +30,7 @@ void(*resetFunc)(void) = 0; //declare reset function at address 0
 Encoder lEnc(B1A, B1B), rEnc(B2A, B2B);
 
 // const double PPR = 4680.0; need to verify this
-const double PPR = 2400.0;
+const double PPR = 2340.0;
 const int WHEEL_RADIUS = 0.0325;
 const float DEG_PER_TICK = 360.0 / PPR;
 // float kp = 2.1, ki = 0.2 , kd = 0.5;          // modify for optimal performance
@@ -106,11 +111,10 @@ void setup() {
 
 unsigned long lastTime = 0;
 int32_t last_pos[2] = {0};
+int32_t enc[2] = {0};
+float lDeg, rDeg;
 
 void loop() {
-  int32_t enc[2];
-  float lDeg, rDeg;
-
   unsigned long now = millis();
   unsigned int duration = (now - lastTime);
 
@@ -120,18 +124,19 @@ void loop() {
     enc[0] = -1 * lEnc.read();
     enc[1] = rEnc.read();
     lastTime = now;
-    // degrees not raidans yet.
-    lDeg = (float)((enc[0] - last_pos[0]) * DEG_PER_TICK);
-    rDeg = (float)((enc[1] - last_pos[1]) * DEG_PER_TICK);
 
-    updateEncoders(lDeg, rDeg);
+    if (enc[0] != last_pos[0] || enc[1] != last_pos[1]) {
+      // they are in degrees not raidans yet.
+      lDeg = (float)((enc[0] - last_pos[0]) * DEG_PER_TICK);
+      rDeg = (float)((enc[1] - last_pos[1]) * DEG_PER_TICK);
+      updateEncoders(lDeg, rDeg);
 
-    // input[i] is in degree/s
-    input[0] = 1000.0 * lDeg / duration;
-    input[1] = 1000.0 * rDeg / duration;
-
-    last_pos[0] = enc[0];
-    last_pos[1] = enc[1];
+      // input[i] is in degree/s
+      input[0] = 1000.0 * lDeg / duration;
+      input[1] = 1000.0 * rDeg / duration;
+      last_pos[0] = enc[0];
+      last_pos[1] = enc[1];
+    }
 
     lPID.Compute();
     lPwmOut((int)output[0]);
@@ -148,7 +153,7 @@ void serialEvent()
     if (command == "s") {
       String inputStr = Serial.readStringUntil(',');
       Serial.read();  // read "," out
-      setpoint[0] = inputStr.toInt();     
+      setpoint[0] = inputStr.toInt();
       inputStr = Serial.readStringUntil('\r'); // read 2nd param
       Serial.read();  // read "/r" out
       setpoint[1] = inputStr.toInt();

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from os import uname
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
@@ -34,7 +35,8 @@ def generate_launch_description():
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare("diffbot_description"), "urdf", "diffbot_system.urdf.xacro"]
+                [FindPackageShare("diffbot_description"),
+                 "urdf", "diffbot_system.urdf.xacro"]
                 #[FindPackageShare("diffbot_description"), "urdf", "1st.urdf"]
             ),
         ]
@@ -91,16 +93,21 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration("start_rviz")),
     )
 
-    return LaunchDescription(
-        [
-            # run on pc
-            arg_show_rviz,
-            node_robot_state_publisher,            
-            spawn_jsb_controller,
-            rviz_node,
-
-            # run on pi 
-            #controller_manager_node,
-            #spawn_dd_controller,
-        ]
-    )
+    if (uname()[4][:3] == 'aar'):
+        return LaunchDescription(
+            [
+                # run on pi
+                controller_manager_node,
+                spawn_dd_controller
+            ]
+        )
+    else:
+        return LaunchDescription(
+            [
+                # run on pc
+                arg_show_rviz,
+                node_robot_state_publisher,
+                spawn_jsb_controller,
+                rviz_node
+            ]
+        )
