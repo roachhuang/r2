@@ -1,6 +1,7 @@
 lsusb
 sudo usermod -a -G dialout $USER
 ros2 launch ros2_control_demo_bringup diffbot_system.launch.py
+ros2 lifecycle set /rosnodename shutdown
 
 ros2_control CLI:
     ros2 control list_hardware_interfaces
@@ -15,7 +16,7 @@ PI:
     
     sudo apt-get ros-foxy-ros-control
     sudo apt-get ros-foxy-ros-controllers 
-    rosdep install -i --from-path src --rosdistro foxy -y
+    # rosdep install -i --from-path src --rosdistro foxy -y
     rosdep install --from-paths src --ignore-src -r -y
     colcon build --symlink-install   
     colcon build --packages-select <pkg>

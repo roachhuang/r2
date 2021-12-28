@@ -92,22 +92,24 @@ def generate_launch_description():
         arguments=["-d", rviz_config_file],
         condition=IfCondition(LaunchConfiguration("start_rviz")),
     )
-
+    # check if pi or pc
     if (uname()[4][:3] == 'aar'):
         return LaunchDescription(
             [
                 # run on pi
-                controller_manager_node,
-                spawn_dd_controller
+                # controller_manager_node,                
+                spawn_dd_controller,
+                #spawn_jsb_controller,
             ]
         )
     else:
         return LaunchDescription(
             [
                 # run on pc
+                controller_manager_node, 
+                spawn_jsb_controller,   
                 arg_show_rviz,
-                node_robot_state_publisher,
-                spawn_jsb_controller,
+                node_robot_state_publisher,               
                 rviz_node
             ]
         )
