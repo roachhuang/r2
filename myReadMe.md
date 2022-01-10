@@ -7,6 +7,7 @@ ros2_control CLI:
     ros2 control list_hardware_interfaces
     ros2 control list_controllers
     ros2 control list_controller_types
+    ros2 topic info -v <topic_name>
 
 PI:
     sudo dd if=tb3_rpi4_foxy_20210825.img of=/dev/sdb bs=4M conv=fsyncl
