@@ -105,9 +105,11 @@ def generate_launch_description():
     else:
         return LaunchDescription(
             [
-                # run on pc
-                controller_manager_node, 
-                spawn_jsb_controller,   
+                # run on pc 
+                controller_manager_node,                
+                #spawn_dd_controller,
+
+                spawn_jsb_controller,                                   
                 arg_show_rviz,
                 node_robot_state_publisher,               
                 rviz_node

@@ -22,7 +22,7 @@
 
 // #include <thread>
 
-// #include <rclcpp/rclcpp.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "ros2_control_demo_hardware/diffbot_system.hpp"
 

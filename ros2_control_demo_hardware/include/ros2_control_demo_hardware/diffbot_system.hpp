@@ -16,8 +16,8 @@
 #define ROS2_CONTROL_DEMO_HARDWARE__DIFFBOT_SYSTEM_HPP_
 #define deg2Rad(angleDegrees) ((angleDegrees) * M_PI / 180.0)
 #define rad2Deg(angleRadians) ((angleRadians) * 180.0 / M_PI)
-// #include <memory>
-// #include <string>
+#include <memory>
+#include <string>
 // #include <thread>
 #include <vector>
 // #include <std_msgs/msg/float32_multi_array.hpp>
@@ -28,7 +28,7 @@
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "hardware_interface/types/hardware_interface_status_values.hpp"
 #include "rclcpp/macros.hpp"
-#include "rclcpp/rclcpp.hpp"
+// #include "rclcpp/rclcpp.hpp"
 #include "ros2_control_demo_hardware/visibility_control.h"
 // #include "ros2_control_demo_hardware/r2serial.hpp"
 #include "BufferedAsyncSerial.hpp"
