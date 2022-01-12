@@ -107,7 +107,7 @@ def generate_launch_description():
             [
                 # run on pc 
                 controller_manager_node,                
-                #spawn_dd_controller,
+                spawn_dd_controller,
 
                 spawn_jsb_controller,                                   
                 arg_show_rviz,
