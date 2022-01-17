@@ -15,8 +15,8 @@ PI:
     sudo -i
     nautilus (to copy 50-cloud-init.yaml to sd card's /etc/netplan)
     
-    sudo apt-get ros-foxy-ros-control
-    sudo apt-get ros-foxy-ros-controllers 
+    sudo apt-get ros-foxy-ros2-control
+    sudo apt-get ros-foxy-ros2-controllers 
     # rosdep install -i --from-path src --rosdistro foxy -y
     rosdep install --from-paths src --ignore-src -r -y
     colcon build --symlink-install   
@@ -106,3 +106,66 @@ JGB37-520 (12v,110rpm, 1:90, 11 pulses/rotation x 90 x2=1980) - rmb40
 pins (1:vin+, 2:vin-, 3:encoder gnd, 4: encoder vin(3.3~5v),5:phase A outpu, 6:phaseB)
 
 ID549XW-5031 (12~24v, 3100rpm@12v, 6100rpm@24v, )
+
+
+DOCKER:
+    docker build -t <imgname> .
+    docker images
+    docker tag <tagname> <dockerid>/<imgname>
+    docker login
+    docker push <dockerid>/<tagname>
+
+
+    docker pull giraftw2002/myr2:latest
+    docker ps -a
+    docker rm <contain_id>
+
+    at laptop:
+        docker images
+        docker run <repo>:<tag> -it --name r2 --privileged --network=host
+    # remove an image:
+        docker rmi <img_id or name>
+
+    e.g., (https://docs.duckietown.org/daffy/duckietown-robotics-development/out/docker_basics.html)
+
+        docker pull library/ubuntu:18.04
+        docker image list
+        docker image rm <repo:tag>
+        # -it switch. This tells Docker to create an interactive terminal session.
+        docker run -it ubuntu
+        docker ps == docker container list -a
+        docker container rm container name
+        docker container start container name
+        $ docker container stop container name
+        $ docker container restart container name
+        # bring the running container to foreground from background.
+        docker attach container name
+        docker exec <container_id> touch /quackworld
+        # Run a new Ubuntu container where you mount your home directory in the container’s home directory:
+        docker run -it -v ~:/home ubuntu
+
+        docker and networking:
+            docker run --name <container_name> --privileged --network=host -dit --restart unless-stopped <repo>:<tag>
+
+        dockerfile:
+            FROM ubuntu
+            RUN touch new_file1
+            CMD ls -l
+        docker build -t <repo>:<tag> .
+        docker run -it <repo>:<tag>
+
+        # stop and del all containers
+        docker stop $(docker ps -a -q)
+        docker rm $(docker ps -a -q)
+        docker system prune -a        
+        docker rmi -f $(docker images -a -q)
+
+
+        example:
+            docker build -t r2 .
+            docker tag r2:latest giraftw2002/r2:latest
+            docker login
+            docker push giraftw2002/r2:latest
+            docker run --name myr2 --privileged --net host -it giraftw2002/r2:latest bash
+
+            docker run --name myr2 --privileged --net host -it r2 bash
