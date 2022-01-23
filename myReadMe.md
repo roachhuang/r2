@@ -1,3 +1,6 @@
+A workspace is a directory containing ROS 2 packages. it’s necessary to source your ROS 2 installation workspace in the terminal you plan to work in. You also have the option of sourcing an “overlay” – a secondary workspace where you can add new packages without interfering with the existing ROS 2 workspace that you're extending, or “underlay”.
+Your underlay(different ROS version) must contain the dependencies of all the packages in your overlay. Packages in your overlay will override packages in the underlay. It’s also possible to have several layers of underlays and overlays, with each successive overlay using the packages of its parent underlays.
+
 lsusb
 sudo usermod -a -G dialout $USER
 ros2 launch ros2_control_demo_bringup diffbot_system.launch.py
@@ -17,12 +20,18 @@ PI:
     
     sudo apt-get ros-foxy-ros2-control
     sudo apt-get ros-foxy-ros2-controllers 
+    # do resodep install every time you clone!
     # rosdep install -i --from-path src --rosdistro foxy -y
-    rosdep install --from-paths src --ignore-src -r -y
+    rosdep update
+    rosdep install -ryi --from-paths src --ignore-src --rosdistro $ROS_DISTRO
+   
     colcon build --symlink-install   
     colcon build --packages-select <pkg>
     . install/setup.bash
     ros2 launch ros2_control_demo_bringup diffbot_system.launch.py
+
+    https://itectec.com/ubuntu/ubuntu-enable-uart-communication-on-pi4-ubuntu-20-04/
+    https://askubuntu.com/questions/1254376/enable-uart-communication-on-pi4-ubuntu-20-04
 
 DEBUG:
     top -i (sorting keys: P, M, N, T)
@@ -80,6 +89,34 @@ signed number from -2,147,483,648 to 2,147,483,647
 URDF:
     rosrun xacro <file>.xacro > <file>.urdf
 
+IMU (MPU6050):
+    sudo i2cdetect -r -y 1
+    sudo chmod a+rw /dev/i2c-*
+    Edit the file /etc/udev/rules.d/99-com.rules:
+        SUBSYSTEM=="ic2-dev", GROUP="i2c", MODE="0660"
+
+    git clone https://github.com/hiwad-aziz/ros2_mpu6050_driver.git
+    sudo apt-get install libi2c-dev  (maybe rosdep install will do this for us)
+    colcon build --packages-select mpu6050driver
+    . install/setup.bash
+    ros2 launch mpu6050driver mpu6050driver_launch.py
+    
+    The sensor is calibrated on node startup (sensor needs to be on a plane with z-axis up and should not be moved during calibration). Calibration can be turned off in the parameters file. The output is an IMU ROS message but the quaternion part is currently set to zero.
+
+    sudo dd if=/dev/sdb | sudo dd of=/dev/sdc bs=16M status=progress
+    
+UPSPACK V3:
+    https://github.com/rcdrones/UPSPACK_V3
+    sudo systemctl status rc-local
+    sudo nano /etc/rc.local
+    #在最下面的 exit 0 的上面一行添加如下内容
+    sudo python3 /home/pi/UPSPACK_V3/shutdown_check.py &
+    sudo pip install RPi.GPIO  // shutdown_check.py uses the module
+    sudo chmod +x /etc/rc.local
+
+    https://www.linuxbabe.com/linux-server/how-to-enable-etcrc-local-with-systemd
+    sudo systemctl enable rc-local
+
 TT motor: 
 rmb:31
 10000rpm at 3v; 20000rpm at 6v (+/- 10%)
@@ -107,65 +144,3 @@ pins (1:vin+, 2:vin-, 3:encoder gnd, 4: encoder vin(3.3~5v),5:phase A outpu, 6:p
 
 ID549XW-5031 (12~24v, 3100rpm@12v, 6100rpm@24v, )
 
-
-DOCKER:
-    docker build -t <imgname> .
-    docker images
-    docker tag <tagname> <dockerid>/<imgname>
-    docker login
-    docker push <dockerid>/<tagname>
-
-
-    docker pull giraftw2002/myr2:latest
-    docker ps -a
-    docker rm <contain_id>
-
-    at laptop:
-        docker images
-        docker run <repo>:<tag> -it --name r2 --privileged --network=host
-    # remove an image:
-        docker rmi <img_id or name>
-
-    e.g., (https://docs.duckietown.org/daffy/duckietown-robotics-development/out/docker_basics.html)
-
-        docker pull library/ubuntu:18.04
-        docker image list
-        docker image rm <repo:tag>
-        # -it switch. This tells Docker to create an interactive terminal session.
-        docker run -it ubuntu
-        docker ps == docker container list -a
-        docker container rm container name
-        docker container start container name
-        $ docker container stop container name
-        $ docker container restart container name
-        # bring the running container to foreground from background.
-        docker attach container name
-        docker exec <container_id> touch /quackworld
-        # Run a new Ubuntu container where you mount your home directory in the container’s home directory:
-        docker run -it -v ~:/home ubuntu
-
-        docker and networking:
-            docker run --name <container_name> --privileged --network=host -dit --restart unless-stopped <repo>:<tag>
-
-        dockerfile:
-            FROM ubuntu
-            RUN touch new_file1
-            CMD ls -l
-        docker build -t <repo>:<tag> .
-        docker run -it <repo>:<tag>
-
-        # stop and del all containers
-        docker stop $(docker ps -a -q)
-        docker rm $(docker ps -a -q)
-        docker system prune -a        
-        docker rmi -f $(docker images -a -q)
-
-
-        example:
-            docker build -t r2 .
-            docker tag r2:latest giraftw2002/r2:latest
-            docker login
-            docker push giraftw2002/r2:latest
-            docker run --name myr2 --privileged --net host -it giraftw2002/r2:latest bash
-
-            docker run --name myr2 --privileged --net host -it r2 bash

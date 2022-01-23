@@ -62,6 +62,7 @@ def generate_launch_description():
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[robot_description, diffbot_diff_drive_controller],
+        remappings=['/diffbot_base_controller/cmd_vel_unstamped', '/cmd_vel'],
         output={
             "stdout": "screen",
             "stderr": "screen",
@@ -97,7 +98,7 @@ def generate_launch_description():
         return LaunchDescription(
             [
                 # run on pi
-                # controller_manager_node,                
+                controller_manager_node,                
                 spawn_dd_controller,
                 #spawn_jsb_controller,
             ]
@@ -106,8 +107,8 @@ def generate_launch_description():
         return LaunchDescription(
             [
                 # run on pc 
-                controller_manager_node,                
-                spawn_dd_controller,
+                #controller_manager_node,                
+                #spawn_dd_controller,
 
                 spawn_jsb_controller,                                   
                 arg_show_rviz,
